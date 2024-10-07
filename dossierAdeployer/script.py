@@ -23,7 +23,15 @@ for tentative in range(5):
         if tentative < 4:
             # Si le port est déjà utilisé, libérer le port en utilisant la commande kill
             print(f"'{nom_machine}' : Le port {PORT} est déjà utilisé. Tentative de libération du port ({tentative + 1}/5)...")
-            os.system(f"lsof -t -i:{PORT} | xargs -r kill -9")
+            # Afficher avec print le PID du processus qui utilise le port
+            pid = os.popen(f'lsof -t -i:{PORT}').read().strip()
+            print(f"'{nom_machine}' : PID du processus qui utilise le port {PORT} : {pid}")
+            if pid:
+                # Libérer le port et afficher le résultat de kill
+                os.system(f'kill -9 {pid}')
+                print(f"'{nom_machine}' : Tentative de tuer le processus {pid}.")
+            else:
+                print(f"'{nom_machine}' : Aucun processus n'utilise le port {PORT}.")
             time.sleep(2)
         else:
             raise Exception(f"'{nom_machine}' : Impossible de lier le socket au port {PORT} après 5 tentatives.")

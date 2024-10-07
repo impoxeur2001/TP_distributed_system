@@ -13,15 +13,15 @@ command1=("ssh" "-tt" "$login@${computers[0]}" "rm -rf $remoteFolder; mkdir $rem
 
 # Exécuter la commande ssh sur la première machine
 echo ${command1[*]}
-"${command1[@]}"
+"${command1[@]}";wait;
 
 command2=("scp" "-r" "$localFolder$todeploy" "$login@${computers[0]}:$remoteFolder")
 echo ${command2[*]}
-"${command2[@]}"
+"${command2[@]}";wait;
 
 for c in ${computers[@]}; do
   #this command goes to the remote folder, waits 3 seconds and executes script
-  command3=("ssh" "-tt" "$login@$c" "sleep 3; cd $remoteFolder/$todeploy; python3 $nameOfTheScript; wait;")
+  command3=("ssh" "-tt" "$login@$c" "cd $remoteFolder/$todeploy; python3 $nameOfTheScript; wait;")
 
   echo ${command3[*]}
   "${command3[@]}" &
