@@ -142,7 +142,7 @@ def gerer_connexion(client_socket, adresse_client):
                     client_socket2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     
                     # Se connecter à la machine
-                    client_socket2.connect((machine, PORT))
+                    client_socket2.connect((machine, PORT2))
 
                     #vérifier si la connexion est établie
                     
