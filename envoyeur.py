@@ -6,18 +6,23 @@ import threading
 # Lire les adresses des machines à partir du fichier machines.txt
 with open('machines.txt', 'r') as file:
     machines = [line.strip() for line in file.readlines()]
+print(machines)
 
 tab_fin_phase_1 = [False]*len(machines)
+tab_fin_phase_2 = [False]*len(machines)
+tab_fin_phase_3 = [False]*len(machines)
 
 # Convertir la liste des machines en JSON
 machines_json = json.dumps(machines)
 
+# Text à envoyer 
+text= "un bonjour depuis la lune la lune est belle"
+
 # Les messages spécifiques à envoyer
-messages_specifiques = ["bonjour", "hello", "hola", "hi"]
+messages_specifiques = text.split()
 
 # Dictionnaire pour stocker les connexions
 connexions = {}
-
 
 
 # Créer les connexions à toutes les machines
@@ -59,13 +64,18 @@ def envoyer_messages():
         except Exception as e:
             print(f"Erreur lors de l'envoi à {machine}: {e}")
 
-    # Envoyer les messages spécifiques de manière cyclique
-    for index, message in enumerate(messages_specifiques):
+    # Envoyer les splits de messages spécifiques de manière cyclique
+    len_splits=3
+    index_m=0
+    index=0
+    while (index_m<len(messages_specifiques)-1):
         machine_index = index % len(machines)
         machine = machines[machine_index]
         try:
+            message= json.dumps(messages_specifiques[index_m:max(index_m+len_splits,len(messages_specifiques))])
             client_socket = connexions[machine]
             envoyer_message(client_socket, message)
+            index_m+=len_splits
             print(f"Envoyé '{message}' à {machine}")
         except Exception as e:
             print(f"Erreur lors de l'envoi à {machine}: {e}")
@@ -106,6 +116,23 @@ def recevoir_messages():
                     for machine, client_socket in connexions.items():
                         envoyer_message(client_socket, "GO PHASE 2")
                         print(f"Envoyé 'GO PHASE 2' à {machine}")
+            if message_reçu == "OK FIN PHASE 2":
+                print(f"Reçu '{message_reçu}' de {machine}")
+                tab_fin_phase_2[machines.index(machine)] = True
+                #si toutes les machines ont fini la phase 1
+                if all(tab_fin_phase_2):
+                    for machine, client_socket in connexions.items():
+                        envoyer_message(client_socket, "GO PHASE 3")
+                        print(f"Envoyé 'GO PHASE 3' à {machine}")
+            if message_reçu == "OK FIN PHASE 3":
+                print(f"Reçu '{message_reçu}' de {machine}")
+                tab_fin_phase_3[machines.index(machine)] = True
+                #si toutes les machines ont fini la phase 1
+                if all(tab_fin_phase_2):
+                    for machine, client_socket in connexions.items():
+                        envoyer_message(client_socket, "GO PHASE 3")
+                        print(f"Envoyé 'GO PHASE 4' à {machine}")
+
         except Exception as e:
             print(f"Erreur lors de la réception de {machine}: {e}")
 

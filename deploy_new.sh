@@ -1,8 +1,8 @@
 #!/bin/bash
-login="sharrock"
+login="malainine-24"
 localFolder="./"
 todeploy="dossierAdeployer"
-remoteFolder="bgd701sharrock"
+remoteFolder="bgd701limame"
 nameOfTheScript="script.py"
 #create a machines.txt file with the list of computers
 computers=($(cat machines.txt))

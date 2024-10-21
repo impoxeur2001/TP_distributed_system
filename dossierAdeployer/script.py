@@ -4,6 +4,7 @@ import struct
 import threading
 import os
 import time
+from collections import Counter
 
 # Obtenir le nom de la machine
 nom_machine = socket.gethostname()
@@ -15,15 +16,15 @@ print(f"'{nom_machine}' : Bonjour, je suis la machine ")
 serveur_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Lier le socket à l'adresse et au port avec un maximum de 5 tentatives
-for tentative in range(5):
+for tentative in range(7):
     try:
         serveur_socket.bind(('0.0.0.0', PORT))
         print(f"'{nom_machine}' : Le socket est lié au port {PORT} après {tentative + 1} tentative(s).")
         break
     except OSError:
-        if tentative < 4:
+        if tentative < 6:
             # Si le port est déjà utilisé, libérer le port en utilisant la commande kill
-            print(f"'{nom_machine}' : Le port {PORT} est déjà utilisé. Tentative de libération du port ({tentative + 1}/5)...")
+            print(f"'{nom_machine}' : Le port {PORT} est déjà utilisé. Tentative de libération du port ({tentative + 1}/7)...")
             # Afficher avec print le PID du processus qui utilise le port
             pid = os.popen(f'lsof -t -i:{PORT}').read().strip()
             print(f"'{nom_machine}' : PID du processus qui utilise le port {PORT} : {pid}")
@@ -35,21 +36,21 @@ for tentative in range(5):
                 print(f"'{nom_machine}' : Aucun processus n'utilise le port {PORT}.")
             time.sleep(5)
         else:
-            raise Exception(f"'{nom_machine}' : Impossible de lier le socket au port {PORT} après 5 tentatives.")
+            raise Exception(f"'{nom_machine}' : Impossible de lier le socket au port {PORT} après 7 tentatives.")
 
 # Créer un socket TCP/IP
 serveur_socket2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Lier le socket à l'adresse et au port avec un maximum de 5 tentatives
-for tentative in range(5):
+for tentative in range(7):
     try:
         serveur_socket2.bind(('0.0.0.0', PORT2))
         print(f"'{nom_machine}' : Le socket est lié au port {PORT2} après {tentative + 1} tentative(s).")
         break
     except OSError:
-        if tentative < 4:
+        if tentative < 6:
             # Si le port est déjà utilisé, libérer le port en utilisant la commande kill
-            print(f"'{nom_machine}' : Le port {PORT2} est déjà utilisé. Tentative de libération du port ({tentative + 1}/5)...")
+            print(f"'{nom_machine}' : Le port {PORT2} est déjà utilisé. Tentative de libération du port ({tentative + 1}/7)...")
             # Afficher avec print le PID du processus qui utilise le port
             pid = os.popen(f'lsof -t -i:{PORT2}').read().strip()
             print(f"'{nom_machine}' : PID du processus qui utilise le port {PORT2} : {pid}")
@@ -84,20 +85,21 @@ def recevoir_exactement(client_socket, n):
     return data
 
 def recevoir_message(client_socket):
-    # Recevoir la taille du message
-    taille_message_bytes = recevoir_exactement(client_socket, 4)
-    if taille_message_bytes is None:
-        print("Connexion fermée lors de la réception de la taille du message.")
-        return None
+    try:
+        # Recevoir la taille du message
+        taille_message_bytes = client_socket.recv(4)
+        if not taille_message_bytes:
+            return None
 
-    taille_message = struct.unpack('!I', taille_message_bytes)[0]
+        taille_message = struct.unpack('!I', taille_message_bytes)[0]
 
-    # Recevoir le message en utilisant la taille
-    data = recevoir_exactement(client_socket, taille_message)
-    if data is None:
-        print("Connexion fermée lors de la réception du message.")
+        # Recevoir le message en utilisant la taille
+        data = client_socket.recv(taille_message)
+        if not data:
+            return None
+        return data.decode('utf-8')
+    except:
         return None
-    return data.decode('utf-8')
 
 def envoyer_message(client_socket, message):
     # Convertir le message en bytes
@@ -117,17 +119,24 @@ def gerer_connexion(client_socket, adresse_client):
     mots=[]
     machines_reçues=[]
     etat=1
+    mots_shuffle=[]
 
-    while etat!=3:
+    while etat!=4:
         message_reçu = recevoir_message(client_socket)
+        if message_reçu is None:
+            print(f"'{nom_machine}' : Connexion fermée par le client {adresse_client}")
+            break
+
         print(f"'{nom_machine}' : Message reçu: {message_reçu}")
         if etat==1 and nb_message==0:
             machines_reçues = json.loads(message_reçu)
             nb_message+=1
             continue
         if etat==1 and nb_message>0 and message_reçu != "FIN PHASE 1":
-            mots.append(message_reçu)
+            mots_recu=json.loads(message_reçu)
+            mots=mots+mots_recu
             nb_message+=1
+
             continue
         if message_reçu == "FIN PHASE 1":
             etat=2
@@ -156,8 +165,29 @@ def gerer_connexion(client_socket, adresse_client):
             for mot in mots:
                 machine_number = len(mot)%len(machines_reçues)
                 print(f"{nom_machine}: Envoi de {mot} à {machines_reçues[machine_number]}")
-                envoyer_message(connexions_phase_2[machines_reçues[machine_number]], mot)
-            break
+                try:
+                   envoyer_message(connexions_phase_2[machines_reçues[machine_number]], mot)
+                except Exception as e:
+                    print(f"Erreur lors de l'envoi à {machines_reçues[machine_number]}: {e}")
+            envoyer_message(client_socket, "OK FIN PHASE 2")
+            continue
+        if etat==2 and message_reçu != "GO PHASE 3":
+            mots_shuffle.append(message_reçu)
+            continue
+        if message_reçu == "GO PHASE 3":
+            etat=3
+        if etat==3:
+            word_count_dict = dict(Counter(mots_shuffle))
+            word_count_json= json.dumps(word_count_dict)
+            print(word_count_dict)
+            envoyer_message(client_socket, "OK FIN PHASE 3")
+            #envoyer_message(client_socket, word_count_json)
+
+
+            
+            
+            
+            
 
           
 def gerer_phase_2(client_socket, adresse_client):
