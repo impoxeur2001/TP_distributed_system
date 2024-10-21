@@ -57,8 +57,9 @@ def envoyer_message(client_socket, message):
 
 def envoyer_messages():
     #Envoyer la liste des machines à chaque machine
-    for machine, client_socket in connexions.items():
+    for machine in machines:
         try:
+            client_socket = connexions[machine]
             envoyer_message(client_socket, machines_json)
             print(f"Envoyé la liste des machines à {machine}")
         except Exception as e:
@@ -68,17 +69,19 @@ def envoyer_messages():
     len_splits=3
     index_m=0
     index=0
-    while (index_m<len(messages_specifiques)-1):
+    while (index_m<len(messages_specifiques)):
         machine_index = index % len(machines)
         machine = machines[machine_index]
         try:
-            message= json.dumps(messages_specifiques[index_m:max(index_m+len_splits,len(messages_specifiques))])
+            message= json.dumps(messages_specifiques[index_m:index_m + len_splits])
             client_socket = connexions[machine]
             envoyer_message(client_socket, message)
             index_m+=len_splits
+            index+=1
             print(f"Envoyé '{message}' à {machine}")
         except Exception as e:
             print(f"Erreur lors de l'envoi à {machine}: {e}")
+        
 
     # Envoyer le message de fin de phase à chaque machine
     for machine, client_socket in connexions.items():
@@ -87,6 +90,7 @@ def envoyer_messages():
             print(f"Envoyé 'FIN PHASE 1' à {machine}")
         except Exception as e:
             print(f"Erreur lors de l'envoi à {machine}: {e}")
+            break
 
 def recevoir_exactement(client_socket, n):
     data = b''
