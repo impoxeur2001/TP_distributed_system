@@ -143,6 +143,7 @@ def gerer_connexion(client_socket, adresse_client):
             thread_accepter_phase2 = threading.Thread(target=accepter_connexion_phase2)
             thread_accepter_phase2.start()
             #envoyer "OK FIN PHASE 1"
+            print(f"{nom_machine}: Envoi de OK FIN PHASE 1 à {adresse_client}")
             envoyer_message(client_socket, "OK FIN PHASE 1")
             # Créer les connexions à toutes les machines
             for machine in machines_reçues:
@@ -169,18 +170,21 @@ def gerer_connexion(client_socket, adresse_client):
                    envoyer_message(connexions_phase_2[machines_reçues[machine_number]], mot)
                 except Exception as e:
                     print(f"Erreur lors de l'envoi à {machines_reçues[machine_number]}: {e}")
+            print(f"{nom_machine}: Envoi de OK FIN PHASE 2 à {adresse_client}")
             envoyer_message(client_socket, "OK FIN PHASE 2")
+            print(f"{nom_machine}: OK FIN PHASE 2 envoyé")
             continue
         if etat==2 and message_reçu != "GO PHASE 3":
             mots_shuffle.append(message_reçu)
             continue
-        if message_reçu == "GO PHASE 3":
+        if message_reçu == "GO PHASE 3": 
             etat=3
         if etat==3:
             word_count_dict = dict(Counter(mots_shuffle))
             word_count_json= json.dumps(word_count_dict)
             print(word_count_dict)
             envoyer_message(client_socket, "OK FIN PHASE 3")
+            break
             #envoyer_message(client_socket, word_count_json)
 
 

@@ -109,36 +109,37 @@ def recevoir_message(client_socket):
     return data.decode('utf-8')
 
 def recevoir_messages():
-    for machine, client_socket in connexions.items():
-        try:
-            message_reçu = recevoir_message(client_socket)
-            if message_reçu == "OK FIN PHASE 1":
-                print(f"Reçu '{message_reçu}' de {machine}")
-                tab_fin_phase_1[machines.index(machine)] = True
-                #si toutes les machines ont fini la phase 1
-                if all(tab_fin_phase_1):
-                    for machine, client_socket in connexions.items():
-                        envoyer_message(client_socket, "GO PHASE 2")
-                        print(f"Envoyé 'GO PHASE 2' à {machine}")
-            if message_reçu == "OK FIN PHASE 2":
-                print(f"Reçu '{message_reçu}' de {machine}")
-                tab_fin_phase_2[machines.index(machine)] = True
-                #si toutes les machines ont fini la phase 1
-                if all(tab_fin_phase_2):
-                    for machine, client_socket in connexions.items():
-                        envoyer_message(client_socket, "GO PHASE 3")
-                        print(f"Envoyé 'GO PHASE 3' à {machine}")
-            if message_reçu == "OK FIN PHASE 3":
-                print(f"Reçu '{message_reçu}' de {machine}")
-                tab_fin_phase_3[machines.index(machine)] = True
-                #si toutes les machines ont fini la phase 1
-                if all(tab_fin_phase_2):
-                    for machine, client_socket in connexions.items():
-                        envoyer_message(client_socket, "GO PHASE 3")
-                        print(f"Envoyé 'GO PHASE 4' à {machine}")
+    while True:
+        for machine, client_socket in connexions.items():
+            try:
+                message_reçu = recevoir_message(client_socket)
+                if message_reçu == "OK FIN PHASE 1":
+                    print(f"Reçu '{message_reçu}' de {machine}")
+                    tab_fin_phase_1[machines.index(machine)] = True
+                    # si toutes les machines ont fini la phase 1
+                    if all(tab_fin_phase_1):
+                        for machine, client_socket in connexions.items():
+                            envoyer_message(client_socket, "GO PHASE 2")
+                            print(f"Envoyé 'GO PHASE 2' à {machine}")
+                elif message_reçu == "OK FIN PHASE 2":
+                    print(f"Reçu '{message_reçu}' de {machine}")
+                    tab_fin_phase_2[machines.index(machine)] = True
+                    # si toutes les machines ont fini la phase 2
+                    if all(tab_fin_phase_2):
+                        for machine, client_socket in connexions.items():
+                            envoyer_message(client_socket, "GO PHASE 3")
+                            print(f"Envoyé 'GO PHASE 3' à {machine}")
+                elif message_reçu == "OK FIN PHASE 3":
+                    print(f"Reçu '{message_reçu}' de {machine}")
+                    tab_fin_phase_3[machines.index(machine)] = True
+                    # si toutes les machines ont fini la phase 3
+                    if all(tab_fin_phase_3):
+                        for machine, client_socket in connexions.items():
+                            envoyer_message(client_socket, "GO PHASE 4")
+                            print(f"Envoyé 'GO PHASE 4' à {machine}")
 
-        except Exception as e:
-            print(f"Erreur lors de la réception de {machine}: {e}")
+            except Exception as e:
+                print(f"Erreur lors de la réception de {machine}: {e}")
 
 # Créer et démarrer les threads pour envoyer et recevoir les messages
 thread_envoi = threading.Thread(target=envoyer_messages)
