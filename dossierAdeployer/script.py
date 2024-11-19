@@ -140,7 +140,7 @@ def gerer_connexion(client_socket, adresse_client):
             continue
         if message_reçu == "FIN PHASE 1":
             etat=2
-            thread_accepter_phase2 = threading.Thread(target=accepter_connexion_phase2)
+            thread_accepter_phase2 = threading.Thread(target=accepter_connexion_phase2, args=(mots_shuffle))
             thread_accepter_phase2.start()
             #envoyer "OK FIN PHASE 1"
             print(f"{nom_machine}: Envoi de OK FIN PHASE 1 à {adresse_client}")
@@ -174,10 +174,6 @@ def gerer_connexion(client_socket, adresse_client):
             envoyer_message(client_socket, "OK FIN PHASE 2")
             print(f"{nom_machine}: OK FIN PHASE 2 envoyé")
             continue
-        if etat==2 and message_reçu != "GO PHASE 3":
-            mots_shuffle.append(message_reçu)
-            print(f'**************{nom_machine} has {mots_shuffle}')
-            continue
         if message_reçu == "GO PHASE 3": 
             etat=3
             word_count_dict = dict(Counter(mots_shuffle))
@@ -194,12 +190,14 @@ def gerer_connexion(client_socket, adresse_client):
             
 
           
-def gerer_phase_2(client_socket, adresse_client):
+def gerer_phase_2(client_socket, adresse_client,mots_shuffle):
     print(f"'PHASE 2 {nom_machine}' : Gérer phase 2 pour {adresse_client}")
     # Recevoir des messages spécifiques dans une boucle
     while True:
         message_reçu = recevoir_message(client_socket)
         print(f"'PHASE 2 {nom_machine}' : Message reçu: {message_reçu} de {adresse_client}")
+        if(message_reçu!="GO PHASE 2"):
+            mots_shuffle.append(message_reçu)
         
 
 def accepter_connexion_phase1():
@@ -209,14 +207,14 @@ def accepter_connexion_phase1():
     thread_connexion = threading.Thread(target=gerer_connexion, args=(client_socket, adresse_client))
     thread_connexion.start()
 
-def accepter_connexion_phase2():
+def accepter_connexion_phase2(mots_shuffle):
     while True:
         # Accepter une nouvelle connexion
         print(f"'PHASE 2 {nom_machine}' : En attente de connexion...")
         client_socket2, adresse_client = serveur_socket2.accept()
         print(f"'PHASE 2 {nom_machine}' : Connexion acceptée de {adresse_client}")
         # Créer un thread pour gérer la connexion
-        thread_connexion = threading.Thread(target=gerer_phase_2, args=(client_socket2, adresse_client))
+        thread_connexion = threading.Thread(target=gerer_phase_2, args=(client_socket2, adresse_client,mots_shuffle))
         thread_connexion.start()
 
 
