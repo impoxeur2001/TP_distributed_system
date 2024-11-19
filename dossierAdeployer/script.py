@@ -176,10 +176,10 @@ def gerer_connexion(client_socket, adresse_client):
             continue
         if etat==2 and message_reçu != "GO PHASE 3":
             mots_shuffle.append(message_reçu)
+            print(f'**************{nom_machine} has {mots_shuffle}')
             continue
         if message_reçu == "GO PHASE 3": 
             etat=3
-        if etat==3:
             word_count_dict = dict(Counter(mots_shuffle))
             word_count_json= json.dumps(word_count_dict)
             print(word_count_dict)
