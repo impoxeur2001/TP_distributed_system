@@ -140,7 +140,7 @@ def gerer_connexion(client_socket, adresse_client):
             continue
         if message_reçu == "FIN PHASE 1":
             etat=2
-            thread_accepter_phase2 = threading.Thread(target=accepter_connexion_phase2, args=(mots_shuffle))
+            thread_accepter_phase2 = threading.Thread(target=accepter_connexion_phase2, args=(mots_shuffle,))
             thread_accepter_phase2.start()
             #envoyer "OK FIN PHASE 1"
             print(f"{nom_machine}: Envoi de OK FIN PHASE 1 à {adresse_client}")
