@@ -16,8 +16,9 @@ tab_fin_phase_3 = [False]*len(machines)
 machines_json = json.dumps(machines)
 
 # Text à envoyer 
-text= "un bonjour depuis la lune la lune est belle"
-
+with open("example.txt", "r") as file:
+    # Read the entire file into a string variable
+    text = file.read()
 # Les messages spécifiques à envoyer
 messages_specifiques = text.split()
 
@@ -69,11 +70,12 @@ def envoyer_messages():
     len_splits=3
     index_m=0
     index=0
+    l=len(messages_specifiques)
     while (index_m<len(messages_specifiques)):
         machine_index = index % len(machines)
         machine = machines[machine_index]
         try:
-            message= json.dumps(messages_specifiques[index_m:index_m + len_splits])
+            message= json.dumps(messages_specifiques[index_m:min(index_m + len_splits,l-1)])
             client_socket = connexions[machine]
             envoyer_message(client_socket, message)
             index_m+=len_splits

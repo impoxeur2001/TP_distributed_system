@@ -178,6 +178,9 @@ def gerer_connexion(client_socket, adresse_client):
             etat=3
             word_count_dict = dict(Counter(mots_shuffle))
             word_count_json= json.dumps(word_count_dict)
+            path=f'output_{nom_machine}.json'
+            with open(path, "w") as file:
+                json.dump(word_count_dict, file, indent=4)
             print(word_count_dict)
             envoyer_message(client_socket, "OK FIN PHASE 3")
             break
