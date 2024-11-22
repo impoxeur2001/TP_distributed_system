@@ -127,7 +127,7 @@ def gerer_connexion(client_socket, adresse_client):
             print(f"'{nom_machine}' : Connexion fermée par le client {adresse_client}")
             break
 
-        print(f"'{nom_machine}' : Message reçu: {message_reçu}")
+        #print(f"'{nom_machine}' : Message reçu: {message_reçu}")
         if etat==1 and nb_message==0:
             machines_reçues = json.loads(message_reçu)
             nb_message+=1
@@ -165,7 +165,7 @@ def gerer_connexion(client_socket, adresse_client):
         if message_reçu == "GO PHASE 2":
             for mot in mots:
                 machine_number = len(mot)%len(machines_reçues)
-                print(f"{nom_machine}: Envoi de {mot} à {machines_reçues[machine_number]}")
+                #print(f"{nom_machine}: Envoi de {mot} à {machines_reçues[machine_number]}")
                 try:
                    envoyer_message(connexions_phase_2[machines_reçues[machine_number]], mot)
                 except Exception as e:
@@ -181,7 +181,7 @@ def gerer_connexion(client_socket, adresse_client):
             path=f'output_{nom_machine}.json'
             with open(path, "w") as file:
                 json.dump(word_count_dict, file, indent=4)
-            print(word_count_dict)
+            
             envoyer_message(client_socket, "OK FIN PHASE 3")
             break
             #envoyer_message(client_socket, word_count_json)
