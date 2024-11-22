@@ -181,7 +181,7 @@ def gerer_connexion(client_socket, adresse_client):
             path=f'output_{nom_machine}.json'
             with open(path, "w") as file:
                 json.dump(word_count_dict, file, indent=4)
-            
+            print(f'path file created')
             envoyer_message(client_socket, "OK FIN PHASE 3")
             break
             #envoyer_message(client_socket, word_count_json)
