@@ -120,8 +120,9 @@ def gerer_connexion(client_socket, adresse_client):
     machines_reçues=[]
     etat=1
     mots_shuffle=[]
+    max=0
 
-    while etat!=4:
+    while etat!=5:
         message_reçu = recevoir_message(client_socket)
         if message_reçu is None:
             print(f"'{nom_machine}' : Connexion fermée par le client {adresse_client}")
@@ -181,10 +182,25 @@ def gerer_connexion(client_socket, adresse_client):
             path=f'output_{nom_machine}.json'
             with open(path, "w") as file:
                 json.dump(word_count_dict, file, indent=4)
-            print(f'path file created')
+            print(f'{path} file created')
             envoyer_message(client_socket, "OK FIN PHASE 3")
             break
-            #envoyer_message(client_socket, word_count_json)
+        if message_reçu == "GO PHASE 4":
+            max_key = max(word_count_dict)
+            local_max= word_count_dict[max_key]
+            dict_frequency_local={}
+            for i in word_count_dict:
+                if word_count_dict[i] not in dict_frequency_local:
+                    dict_frequency_local[word_count_dict[i]]=1
+                else:
+                    dict_frequency_local[word_count_dict[i]]+=1
+            
+            for count in dict_frequency_local:
+                message=f'{count}:{dict_frequency_local}'
+                envoyer_message(client_socket, message)
+            message=f"OK FIN PHASE 4{local_max}"
+            envoyer_message(client_socket, message)
+
 
 
             

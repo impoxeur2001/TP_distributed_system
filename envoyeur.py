@@ -11,6 +11,7 @@ print(machines)
 tab_fin_phase_1 = [False]*len(machines)
 tab_fin_phase_2 = [False]*len(machines)
 tab_fin_phase_3 = [False]*len(machines)
+tab_fin_phase_4 = [False]*len(machines)
 
 # Convertir la liste des machines en JSON
 machines_json = json.dumps(machines)
@@ -112,6 +113,9 @@ def recevoir_message(client_socket):
 
 def recevoir_messages():
     while True:
+        etat=0
+        max_global=0
+        dict_frequency={}
         for machine, client_socket in connexions.items():
             try:
                 message_reçu = recevoir_message(client_socket)
@@ -139,6 +143,25 @@ def recevoir_messages():
                         for machine, client_socket in connexions.items():
                             envoyer_message(client_socket, "GO PHASE 4")
                             print(f"Envoyé 'GO PHASE 4' à {machine}")
+                            etat=1
+                elif etat==1 and message_reçu[0:min(14,len(message_reçu))] == "OK FIN PHASE 4":
+                    
+                    print(f"Reçu '{message_reçu}' de {machine}")
+                    tab_fin_phase_4[machines.index(machine)] = True
+                    max_global=max(max_global,int(message_reçu[14:]))
+                    # si toutes les machines ont fini la phase 3
+                    if all(tab_fin_phase_3):
+                        for machine, client_socket in connexions.items():
+                            message=f"GO PHASE 4{max_global}"
+                            envoyer_message(client_socket, )
+                            print(f"Envoyé 'GO PHASE 4' à {machine}")
+                elif etat==1 and message_reçu[0:min(14,len(message_reçu))] != "OK FIN PHASE 4":
+                    count,frequency= message_reçu.strip().split(":")
+                    if count not in dict_frequency:
+                        dict_frequency[count]=frequency
+                    else:
+                        dict_frequency[count]+=frequency
+
 
             except Exception as e:
                 print(f"Erreur lors de la réception de {machine}: {e}")
