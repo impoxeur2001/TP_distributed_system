@@ -111,11 +111,44 @@ def recevoir_message(client_socket):
     data = recevoir_exactement(client_socket, taille_message)
     return data.decode('utf-8')
 
+def bucket_range(dict_frequency):
+    buckets = [[] for _ in range(3)]
+    bucket_frequencies = [0] * 3
+    current_bucket = 0
+
+    sorted_counts = sorted(dict_frequency.items(), key=lambda x: x[0])
+    total_frequency = sum(freq for _, freq in sorted_counts)
+    target_frequency = total_frequency // 3
+
+    for count,frequency in sorted_counts:
+         while frequency > 0:
+            remaining_capacity = target_frequency - bucket_frequencies[current_bucket]
+
+            if frequency <= remaining_capacity:
+                # Add the entire count to the current bucket
+                buckets[current_bucket].append((int(count), frequency))
+                bucket_frequencies[current_bucket] += frequency
+                frequency = 0
+            else:
+                # Fill the current bucket and move to the next one
+                buckets[current_bucket].append((int(count), remaining_capacity))
+                bucket_frequencies[current_bucket] += remaining_capacity
+                frequency -= remaining_capacity
+                current_bucket += 1
+
+                # If all buckets are used, overflow into the last bucket
+                if current_bucket >= 3:
+                    current_bucket = 3 - 1
+
+    return buckets
+    
+
 def recevoir_messages():
     while True:
         etat=0
-        max_global=0
+        
         dict_frequency={}
+        buckets=[]
         for machine, client_socket in connexions.items():
             try:
                 message_reçu = recevoir_message(client_socket)
@@ -144,23 +177,26 @@ def recevoir_messages():
                             envoyer_message(client_socket, "GO PHASE 4")
                             print(f"Envoyé 'GO PHASE 4' à {machine}")
                             etat=1
-                elif etat==1 and message_reçu[0:min(14,len(message_reçu))] == "OK FIN PHASE 4":
+                elif etat==1 and message_reçu == "OK FIN PHASE 4":
                     
                     print(f"Reçu '{message_reçu}' de {machine}")
                     tab_fin_phase_4[machines.index(machine)] = True
-                    max_global=max(max_global,int(message_reçu[14:]))
+                    
                     # si toutes les machines ont fini la phase 3
                     if all(tab_fin_phase_3):
+                        buckets=bucket_range(dict_frequency)
+                        buckets_json = json.dumps(buckets)
+                        
                         for machine, client_socket in connexions.items():
-                            message=f"GO PHASE 4{max_global}"
-                            envoyer_message(client_socket, )
-                            print(f"Envoyé 'GO PHASE 4' à {machine}")
-                elif etat==1 and message_reçu[0:min(14,len(message_reçu))] != "OK FIN PHASE 4":
+                            envoyer_message(client_socket, buckets_json)
+                            envoyer_message(client_socket, "GO PHASE 5")
+                            print(f"Envoyé 'GO PHASE 5' à {machine}")
+                elif etat==1 and message_reçu != "OK FIN PHASE 4":
                     count,frequency= message_reçu.strip().split(":")
-                    if count not in dict_frequency:
-                        dict_frequency[count]=frequency
+                    if int(count) not in dict_frequency:
+                        dict_frequency[int(count)]=int(frequency)
                     else:
-                        dict_frequency[count]+=frequency
+                        dict_frequency[int(count)]+=int(frequency)
 
 
             except Exception as e:

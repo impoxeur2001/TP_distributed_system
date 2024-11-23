@@ -121,8 +121,9 @@ def gerer_connexion(client_socket, adresse_client):
     etat=1
     mots_shuffle=[]
     max=0
+    buckets=[]
 
-    while etat!=5:
+    while etat!=6:
         message_reçu = recevoir_message(client_socket)
         if message_reçu is None:
             print(f"'{nom_machine}' : Connexion fermée par le client {adresse_client}")
@@ -178,16 +179,18 @@ def gerer_connexion(client_socket, adresse_client):
         if message_reçu == "GO PHASE 3": 
             etat=3
             word_count_dict = dict(Counter(mots_shuffle))
-            word_count_json= json.dumps(word_count_dict)
+            """
             path=f'output_{nom_machine}.json'
             with open(path, "w") as file:
                 json.dump(word_count_dict, file, indent=4)
             print(f'{path} file created')
+            """
             envoyer_message(client_socket, "OK FIN PHASE 3")
             break
         if message_reçu == "GO PHASE 4":
+            etat=4
             max_key = max(word_count_dict)
-            local_max= word_count_dict[max_key]
+            
             dict_frequency_local={}
             for i in word_count_dict:
                 if word_count_dict[i] not in dict_frequency_local:
@@ -198,8 +201,17 @@ def gerer_connexion(client_socket, adresse_client):
             for count in dict_frequency_local:
                 message=f'{count}:{dict_frequency_local}'
                 envoyer_message(client_socket, message)
-            message=f"OK FIN PHASE 4{local_max}"
+            message=f"OK FIN PHASE 4"
             envoyer_message(client_socket, message)
+
+        if etat==4 and message_reçu!="GO PHASE 5":
+            buckets = json.loads(message_reçu)
+        if message_reçu == "GO PHASE 5":
+            etat=5
+            #send each count to its bucke (apply the probalistic method for counts that are in multiple buckets)
+            
+
+            pass
 
 
 
