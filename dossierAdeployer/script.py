@@ -293,6 +293,7 @@ def gerer_phase_2(client_socket, adresse_client,mots_shuffle):
         #print(f"'PHASE 2 {nom_machine}' : Message reçu: {message_reçu} de {adresse_client}")
         if(message_reçu!="GO PHASE 2"):
             mots_shuffle.append(message_reçu)
+            print(f"{message_reçu}")
         
 
 def accepter_connexion_phase1():
