@@ -191,6 +191,7 @@ def recevoir_messages():
                         
                         for machine, client_socket in connexions.items():
                             envoyer_message(client_socket, buckets_json)
+                            print(f"Envoyé 'BUCKETS' {buckets_json} à {machine}")
                             envoyer_message(client_socket, "GO PHASE 5")
                             print(f"Envoyé 'GO PHASE 5' à {machine}")
                 elif etat==1 and message_reçu != "OK FIN PHASE 4":
