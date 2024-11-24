@@ -190,7 +190,7 @@ def gerer_connexion(client_socket, adresse_client):
             print(f'{path} file created')
             """
             envoyer_message(client_socket, "OK FIN PHASE 3")
-            break
+            continue
         if message_reçu == "GO PHASE 4":
             etat=4
             print(f'{nom_machine} received GO PHASE 4')
