@@ -225,7 +225,7 @@ def gerer_connexion(client_socket, adresse_client):
                 count=word_count_dict[word]
                 occurences=[]
                 index=[]
-                for i in len(buckets):
+                for i in range (len(buckets)):
                     for element in buckets[i]:
                         if (count==int(element[0])):
                             occurences.append(element)
@@ -242,13 +242,13 @@ def gerer_connexion(client_socket, adresse_client):
                     random_value = random.random()
                     for element in occurences:
                         total+=int(element[1])
-                    for i in len(index):
+                    for i in range(len(index)):
                         element=occurences[i]
                         if(i==0):
                             probabilities[i]=int(element[1])/total
                         if(i>0):
                             probabilities[i]=int(element[1])/total + probabilities[i-1]
-                    for i in len(index):
+                    for i in range(len(index)):
                         if(random_value < probabilities[i]):
                            envoyer_message(connexions_phase_2[machines_reçues[index[i]]], message)
             envoyer_message(client_socket, "OK FIN PHASE 5")
