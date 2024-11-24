@@ -82,7 +82,7 @@ def envoyer_messages():
             envoyer_message(client_socket, message)
             index_m+=len_splits
             index+=1
-            print(f"Envoyé '{message}' à {machine}")
+            #print(f"Envoyé '{message}' à {machine}")
         except Exception as e:
             print(f"Erreur lors de l'envoi à {machine}: {e}")
         
