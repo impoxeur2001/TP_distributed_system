@@ -254,10 +254,11 @@ def gerer_connexion(client_socket, adresse_client):
                         if(random_value < probabilities[i]):
                            envoyer_message(connexions_phase_2[machines_reçues[index[i]]], message)
                            print(f"{nom_machine}: Envoi de {message} à {machines_reçues[index[i]]}")
+                           break
             envoyer_message(client_socket, "OK FIN PHASE 5")
-            etat=6
+            
         if etat==5 and message_reçu != "GO PHASE 6":
-            print(f"{nom_machine}: recieved {message}")
+            print(f"{nom_machine}: recieved {message_reçu}")
             word,count= message_reçu.strip().split(":")
             word_dict_sorted[word]=int(count)
         if message_reçu =="GO PHASE 6":
