@@ -208,13 +208,14 @@ def gerer_connexion(client_socket, adresse_client):
                 print(f'{nom_machine} sent {message} to orchestrator')
                 envoyer_message(client_socket, message)
             print(f'{nom_machine} sent frequency to orchestrator')
-            message=f"OK FIN PHASE 4"
-            envoyer_message(client_socket, message)
+            envoyer_message(client_socket, "OK FIN PHASE 4")
+            print(f'{nom_machine} sent OK FIN PHASE 4 to orchestrator')
+            continue
 
         if etat==4 and message_reçu!="GO PHASE 5":
             try:
                 buckets = json.loads(message_reçu)
-                print(f'{nom_machine} received buckets')
+                print(f'{nom_machine} received buckets {buckets}')
             except Exception as error:
                 print(f"Erreur lors de la réception de {client_socket}: {error}")
         if message_reçu == "GO PHASE 5":

@@ -145,11 +145,14 @@ def bucket_range(dict_frequency):
     
 
 def recevoir_messages():
+    dict_frequency={}
+    etat=0
+    buckets=[]
     while True:
-        etat=0
         
-        dict_frequency={}
-        buckets=[]
+        
+        
+       
         for machine, client_socket in connexions.items():
             try:
                 message_reçu = recevoir_message(client_socket)
