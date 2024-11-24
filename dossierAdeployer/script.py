@@ -192,7 +192,7 @@ def gerer_connexion(client_socket, adresse_client):
             break
         if message_reçu == "GO PHASE 4":
             etat=4
-            print('a')
+            print(f'{nom_machine} received GO PHASE 4')
             max_key = max(word_count_dict)
             
             dict_frequency_local={}
