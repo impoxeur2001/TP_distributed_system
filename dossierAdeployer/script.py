@@ -215,8 +215,8 @@ def gerer_connexion(client_socket, adresse_client):
             try:
                 buckets = json.loads(message_reçu)
                 print(f'{nom_machine} received buckets')
-            except:
-                print(f"Erreur lors de la réception de {client_socket}: {e}")
+            except Exception as error:
+                print(f"Erreur lors de la réception de {client_socket}: {error}")
         if message_reçu == "GO PHASE 5":
             etat=5
             #send each count to its bucke (apply the probalistic method for counts that are in multiple buckets)
