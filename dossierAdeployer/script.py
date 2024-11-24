@@ -197,14 +197,14 @@ def gerer_connexion(client_socket, adresse_client):
             
             
             dict_frequency_local={}
-            for i in word_count_dict:
-                if word_count_dict[i] not in dict_frequency_local:
-                    dict_frequency_local[word_count_dict[i]]=1
+            for word in word_count_dict:
+                if word_count_dict[word] not in dict_frequency_local:
+                    dict_frequency_local[word_count_dict[word]]=1
                 else:
-                    dict_frequency_local[word_count_dict[i]]+=1
+                    dict_frequency_local[word_count_dict[word]]+=1
             
             for count in dict_frequency_local:
-                message=f'{count}:{dict_frequency_local}'
+                message=f'{count}:{dict_frequency_local[count]}'
                 print(f'{nom_machine} sent {message} to orchestrator')
                 envoyer_message(client_socket, message)
             print(f'{nom_machine} sent frequency to orchestrator')
