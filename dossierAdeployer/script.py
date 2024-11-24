@@ -212,7 +212,11 @@ def gerer_connexion(client_socket, adresse_client):
             envoyer_message(client_socket, message)
 
         if etat==4 and message_reçu!="GO PHASE 5":
-            buckets = json.loads(message_reçu)
+            try:
+                buckets = json.loads(message_reçu)
+                print(f'{nom_machine} received buckets')
+            except:
+                print(f"Erreur lors de la réception de {client_socket}: {e}")
         if message_reçu == "GO PHASE 5":
             etat=5
             #send each count to its bucke (apply the probalistic method for counts that are in multiple buckets)

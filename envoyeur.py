@@ -179,8 +179,8 @@ def recevoir_messages():
                             print(f"Envoyé 'GO PHASE 4' à {machine}")
                             etat=1
                 elif etat==1 and message_reçu == "OK FIN PHASE 4":
+                    print(f'PHASE 4 message recu de {machine}')
                     
-                    print(f"Reçu '{message_reçu}' de {machine}")
                     tab_fin_phase_4[machines.index(machine)] = True
                     
                     # si toutes les machines ont fini la phase 3
@@ -196,7 +196,7 @@ def recevoir_messages():
                             print(f"Envoyé 'GO PHASE 5' à {machine}")
                 elif etat==1 and message_reçu != "OK FIN PHASE 4":
                     count,frequency= message_reçu.strip().split(":")
-                    print(f'PHASE 4 message recu de {machine}')
+                    print(f"Reçu '{message_reçu}' de {machine}")
                     if int(count) not in dict_frequency:
                         dict_frequency[int(count)]=int(frequency)
                     else:
