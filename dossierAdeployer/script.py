@@ -275,7 +275,7 @@ def gerer_phase_2(client_socket, adresse_client,mots_shuffle):
     # Recevoir des messages spécifiques dans une boucle
     while True:
         message_reçu = recevoir_message(client_socket)
-        print(f"'PHASE 2 {nom_machine}' : Message reçu: {message_reçu} de {adresse_client}")
+        #print(f"'PHASE 2 {nom_machine}' : Message reçu: {message_reçu} de {adresse_client}")
         if(message_reçu!="GO PHASE 2"):
             mots_shuffle.append(message_reçu)
         

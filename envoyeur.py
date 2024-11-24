@@ -195,6 +195,7 @@ def recevoir_messages():
                             print(f"Envoyé 'GO PHASE 5' à {machine}")
                 elif etat==1 and message_reçu != "OK FIN PHASE 4":
                     count,frequency= message_reçu.strip().split(":")
+                    print(f'PHASE 4 message recu de {machine}')
                     if int(count) not in dict_frequency:
                         dict_frequency[int(count)]=int(frequency)
                     else:
