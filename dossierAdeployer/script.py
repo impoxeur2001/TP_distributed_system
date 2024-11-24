@@ -205,6 +205,7 @@ def gerer_connexion(client_socket, adresse_client):
             
             for count in dict_frequency_local:
                 message=f'{count}:{dict_frequency_local}'
+                print(f'{nom_machine} sent {message} to orchestrator')
                 envoyer_message(client_socket, message)
             print(f'{nom_machine} sent frequency to orchestrator')
             message=f"OK FIN PHASE 4"
