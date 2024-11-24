@@ -179,7 +179,8 @@ def gerer_connexion(client_socket, adresse_client):
             envoyer_message(client_socket, "OK FIN PHASE 2")
             print(f"{nom_machine}: OK FIN PHASE 2 envoyé")
             continue
-        if message_reçu == "GO PHASE 3": 
+        if message_reçu == "GO PHASE 3":
+            print(f'{nom_machine} received GO PHASE 3')
             etat=3
             word_count_dict = dict(Counter(mots_shuffle))
             """
