@@ -12,6 +12,7 @@ tab_fin_phase_1 = [False]*len(machines)
 tab_fin_phase_2 = [False]*len(machines)
 tab_fin_phase_3 = [False]*len(machines)
 tab_fin_phase_4 = [False]*len(machines)
+tab_fin_phase_5 = [False]*len(machines)
 
 # Convertir la liste des machines en JSON
 machines_json = json.dumps(machines)
@@ -183,7 +184,8 @@ def recevoir_messages():
                     tab_fin_phase_4[machines.index(machine)] = True
                     
                     # si toutes les machines ont fini la phase 3
-                    if all(tab_fin_phase_3):
+                    if all(tab_fin_phase_4):
+                        etat=0
                         buckets=bucket_range(dict_frequency)
                         buckets_json = json.dumps(buckets)
                         
@@ -198,6 +200,14 @@ def recevoir_messages():
                     else:
                         dict_frequency[int(count)]+=int(frequency)
 
+                elif message_reçu == "OK FIN PHASE 5":
+                    print(f"Reçu '{message_reçu}' de {machine}")
+                    tab_fin_phase_5[machines.index(machine)] = True
+                    # si toutes les machines ont fini la phase 3
+                    if all(tab_fin_phase_5):
+                        for machine, client_socket in connexions.items():
+                            envoyer_message(client_socket, "GO PHASE 6")
+                            print(f"Envoyé 'GO PHASE 6' à {machine}")
 
             except Exception as e:
                 print(f"Erreur lors de la réception de {machine}: {e}")

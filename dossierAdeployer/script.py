@@ -5,6 +5,7 @@ import threading
 import os
 import time
 from collections import Counter
+import random
 
 # Obtenir le nom de la machine
 nom_machine = socket.gethostname()
@@ -122,8 +123,10 @@ def gerer_connexion(client_socket, adresse_client):
     mots_shuffle=[]
     max=0
     buckets=[]
+    word_dict_sorted={}
+    
 
-    while etat!=6:
+    while etat!=7:
         message_reçu = recevoir_message(client_socket)
         if message_reçu is None:
             print(f"'{nom_machine}' : Connexion fermée par le client {adresse_client}")
@@ -209,9 +212,55 @@ def gerer_connexion(client_socket, adresse_client):
         if message_reçu == "GO PHASE 5":
             etat=5
             #send each count to its bucke (apply the probalistic method for counts that are in multiple buckets)
-            
+            for word in word_count_dict:
+                count=word_count_dict[word]
+                occurences=[]
+                index=[]
+                for i in len(buckets):
+                    for element in buckets[i]:
+                        if (count==int(element[0])):
+                            occurences.append(element)
+                            index.append(i)
+                            
+                        
+                if(len(index)==1):
+                    message=f'{word}:{count}'
+                    envoyer_message(connexions_phase_2[machines_reçues[index[0]]], message)
+                if(len(index)>1):
+                    message=f'{word}:{count}'
+                    probabilities=[0]*len(index)
+                    total=0
+                    random_value = random.random()
+                    for element in occurences:
+                        total+=int(element[1])
+                    for i in len(index):
+                        element=occurences[i]
+                        if(i==0):
+                            probabilities[i]=int(element[1])/total
+                        if(i>0):
+                            probabilities[i]=int(element[1])/total + probabilities[i-1]
+                    for i in len(index):
+                        if(random_value < probabilities[i]):
+                           envoyer_message(connexions_phase_2[machines_reçues[index[i]]], message)
+            envoyer_message(client_socket, "OK FIN PHASE 5")
+            etat=6
+        if etat==5 and message_reçu != "GO PHASE 6":
+            word,count= message_reçu.strip().split(":")
+            word_dict_sorted[word]=int(count)
+        if message_reçu =="GO PHASE 6":
+            sorted_dict = dict(sorted(word_dict_sorted.items(), key=lambda item: item[1]))
+            path=f'output_sorted_{nom_machine}.json'
+            with open(path, "w") as file:
+                json.dump(sorted_dict, file, indent=4)
+            print(f'{path} file created')
+                    
 
-            pass
+
+
+
+
+
+            
 
 
 
