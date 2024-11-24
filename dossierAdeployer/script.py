@@ -231,11 +231,12 @@ def gerer_connexion(client_socket, adresse_client):
                             occurences.append(element)
                             index.append(i)
                             
-                        
+                if(len(index)>3):
+                    print(f'{len(index)}')        
                 if(len(index)==1):
                     message=f'{word}:{count}'
                     envoyer_message(connexions_phase_2[machines_reçues[index[0]]], message)
-                    print(f"{nom_machine}: Envoi de {mot} à {machines_reçues[index[i]]}")
+                    #print(f"{nom_machine}: Envoi de {message} à {machines_reçues[index[i]]}")
                 if(len(index)>1):
                     message=f'{word}:{count}'
                     probabilities=[0]*len(index)
@@ -252,10 +253,11 @@ def gerer_connexion(client_socket, adresse_client):
                     for i in range(len(index)):
                         if(random_value < probabilities[i]):
                            envoyer_message(connexions_phase_2[machines_reçues[index[i]]], message)
-                           print(f"{nom_machine}: Envoi de {mot} à {machines_reçues[index[i]]}")
+                           #print(f"{nom_machine}: Envoi de {message} à {machines_reçues[index[i]]}")
             envoyer_message(client_socket, "OK FIN PHASE 5")
             etat=6
         if etat==5 and message_reçu != "GO PHASE 6":
+            print(f"{nom_machine}: recieved {message}")
             word,count= message_reçu.strip().split(":")
             word_dict_sorted[word]=int(count)
         if message_reçu =="GO PHASE 6":
