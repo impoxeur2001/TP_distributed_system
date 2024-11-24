@@ -119,32 +119,32 @@ def gerer_connexion(client_socket, adresse_client):
     nb_message=0
     mots=[]
     machines_reçues=[]
-    etat=1
+    etat=[1]
     mots_shuffle=[]
     max=0
     buckets=[]
     word_dict_sorted={}
     
 
-    while etat!=7:
+    while etat[0]!=7:
         message_reçu = recevoir_message(client_socket)
         if message_reçu is None:
             print(f"'{nom_machine}' : Connexion fermée par le client {adresse_client}")
             break
 
         #print(f"'{nom_machine}' : Message reçu: {message_reçu}")
-        if etat==1 and nb_message==0:
+        if etat[0]==1 and nb_message==0:
             machines_reçues = json.loads(message_reçu)
             nb_message+=1
             continue
-        if etat==1 and nb_message>0 and message_reçu != "FIN PHASE 1":
+        if etat[0]==1 and nb_message>0 and message_reçu != "FIN PHASE 1":
             mots_recu=json.loads(message_reçu)
             mots=mots+mots_recu
             nb_message+=1
 
             continue
         if message_reçu == "FIN PHASE 1":
-            etat=2
+            etat[0]=2
             thread_accepter_phase2 = threading.Thread(target=accepter_connexion_phase2, args=(mots_shuffle,etat,word_dict_sorted))
             thread_accepter_phase2.start()
             #envoyer "OK FIN PHASE 1"
@@ -181,7 +181,7 @@ def gerer_connexion(client_socket, adresse_client):
             continue
         if message_reçu == "GO PHASE 3":
             print(f'{nom_machine} received GO PHASE 3')
-            etat=3
+            etat[0]=3
             word_count_dict = dict(Counter(mots_shuffle))
             """
             path=f'output_{nom_machine}.json'
@@ -192,7 +192,7 @@ def gerer_connexion(client_socket, adresse_client):
             envoyer_message(client_socket, "OK FIN PHASE 3")
             continue
         if message_reçu == "GO PHASE 4":
-            etat=4
+            etat[0]=4
             print(f'{nom_machine} received GO PHASE 4')
             
             
@@ -212,14 +212,14 @@ def gerer_connexion(client_socket, adresse_client):
             print(f'{nom_machine} sent OK FIN PHASE 4 to orchestrator')
             continue
 
-        if etat==4 and message_reçu!="GO PHASE 5":
+        if etat[0]==4 and message_reçu!="GO PHASE 5":
             try:
                 buckets = json.loads(message_reçu)
                 print(f'{nom_machine} received buckets {buckets}')
             except Exception as error:
                 print(f"Erreur lors de la réception de {client_socket}: {error}")
         if message_reçu == "GO PHASE 5":
-            etat=5
+            etat[0]=5
             #send each count to its bucke (apply the probalistic method for counts that are in multiple buckets)
             for word in word_count_dict:
                 count=word_count_dict[word]
@@ -290,7 +290,7 @@ def gerer_phase_2(client_socket, adresse_client,mots_shuffle,etat,word_dict_sort
         #print(f"'PHASE 2 {nom_machine}' : Message reçu: {message_reçu} de {adresse_client}")
         if(message_reçu!="GO PHASE 2"):
             mots_shuffle.append(message_reçu)
-        if(etat==5 and message_reçu[:2]!="GO"):
+        if(etat[0]==5 and message_reçu[:2]!="GO"):
             print(f"{nom_machine}: recieved {message_reçu}")
             word,count= message_reçu.strip().split(":")
             word_dict_sorted[word]=int(count)
