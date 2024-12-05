@@ -261,10 +261,10 @@ def gerer_connexion(client_socket, adresse_client):
         if message_reçu =="GO PHASE 6":
             sorted_dict = dict(sorted(word_dict_sorted.items(), key=lambda item: item[1]))
             print(f'{nom_machine} received sorted dict {sorted_dict}')
-            """path=f'output_sorted_{nom_machine}.json'
+            path=f'output_sorted_{nom_machine}.json'
             with open(path, "w") as file:
                 json.dump(sorted_dict, file, indent=4)
-            print(f'{path} file created')"""
+            print(f'{path} file created')
                     
 
 
